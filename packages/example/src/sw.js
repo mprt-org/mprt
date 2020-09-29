@@ -1,0 +1,1 @@
+importScripts('/bootstrap/sw.js')

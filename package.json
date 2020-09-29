@@ -1,0 +1,11 @@
+{
+  "name": "mprt",
+  "version": "1.0.0",
+  "repository": "https://github.com/mprt-org/mprt.git",
+  "author": "Ivan Plesskih <terma95@gmail.com>",
+  "license": "MIT",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ]
+}

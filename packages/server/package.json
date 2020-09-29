@@ -1,0 +1,14 @@
+{
+  "name": "@mprt/server",
+  "version": "0.0.1",
+  "bin": {
+    "mprt": "serve.js"
+  },
+  "author": "Amareis",
+  "license": "MIT",
+  "dependencies": {
+    "chokidar": "^3.4.2",
+    "express": "^4.17.1",
+    "express-ws": "^4.0.0"
+  }
+}

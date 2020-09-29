@@ -1,0 +1,5 @@
+@import "src/variables.css";
+
+.hello {
+    color: var(--button-color);
+}

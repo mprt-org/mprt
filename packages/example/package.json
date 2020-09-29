@@ -1,0 +1,20 @@
+{
+  "name": "@mprt/example",
+  "private": true,
+  "version": "0.0.1",
+  "author": "Amareis",
+  "license": "MIT",
+  "dependencies": {
+    "mobx": "^5.15.6",
+    "mobx-react": "^6.3.0",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1"
+  },
+  "devDependencies": {
+    "@mprt/server": "workspace:packages/server",
+    "@types/react": "^16.9.49",
+    "@types/react-dom": "^16.9.8",
+    "snowpack": "^2.10.1",
+    "typescript": "^4.0.2"
+  }
+}
