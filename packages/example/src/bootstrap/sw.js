@@ -1,4 +1,4 @@
-importScripts('https://unpkg.com/@mprt/core@0.0.3/index.js')
+importScripts('https://unpkg.com/@mprt/core@0.0.4/index.js')
 importScripts('https://unpkg.com/@babel/standalone@7.11.6/babel.min.js')
 
 const exts = ['.js', '.jsx', '.ts', '.tsx']
@@ -21,7 +21,10 @@ function resolveType(filePath) {
     else if (filePath.match(/\.css$/)) {
         return 'css'
     }
-    return 'unknown'
+    else if (filePath.endsWith('.json')) {
+        return 'json'
+    }
+    return 'url'
 }
 
 function resolve(path, imp, fn, {files, importMap}) {
@@ -31,6 +34,8 @@ function resolve(path, imp, fn, {files, importMap}) {
         imp = u.pathname
         console.log('Absolute', imp)
     }
+    if (imp.endsWith('/'))
+        imp = imp.slice(0, imp.length - 1)
     let res
     if (imp.startsWith('/')) {
         if (!files.includes(imp)) {
@@ -99,14 +104,30 @@ function rewriteImports({types: t}, opts) {
 Babel.registerPlugin('rewriteImports', rewriteImports)
 
 self.addEventListener('install', e => {
-    e.waitUntil(self.skipWaiting())
+    e.waitUntil(async function () {
+        const promises = []
+        const c = await caches.open(getAppName())
+        for (const k of await c.keys())
+            promises.push(c.delete(k))
+        await Promise.all(promises)
+        await self.skipWaiting()
+    }())
+})
+
+self.addEventListener('activate', e => {
+    e.waitUntil(clients.claim?.())
+})
+
+self.addEventListener('message', e => {
+    if (e.data?.type === 'unload')
+        removeClient(e.source.id) //TODO: http://crbug.com/638494
 })
 
 self.addEventListener('fetch', e => {
     const {request} = e
     if (!checkRequest(request)) {
         console.log('Local', request.url)
-        e.respondWith(handleRequest(request, {
+        e.respondWith(handleEvent(e, {
             js: {
                 async transform(req, res) {
                     const name = new URL(req.url).pathname
@@ -139,7 +160,24 @@ self.addEventListener('fetch', e => {
                         headers: {'Content-Type': 'text/javascript', 'Last-Modified': res.headers.get('Last-Modified')}
                     })
                 }
-            }
+            },
+            json: {
+                async transform(req, res) {
+                    return new Response('export default ' + JSON.stringify(await res.json()), {
+                        headers: {'Content-Type': 'text/javascript', 'Last-Modified': res.headers.get('Last-Modified')}
+                    })
+                }
+            },
+            url: {
+                fetch(req) {
+                    const u = new URL(req.url)
+                    u.search = ''
+                    return new Response('export default ' + JSON.stringify(u.toString()), {
+                        headers: {'Content-Type': 'text/javascript'}
+                    })
+                },
+                cache() {/*noop*/}
+            },
         }))
     }
 })

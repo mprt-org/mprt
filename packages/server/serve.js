@@ -6,22 +6,23 @@ const express = require('express')
 const app = express()
 const port = 8000
 
-require('express-ws')(app)
-
 app.use('/', express.static('.', {etag: false}))
 
 const t = {}
 
 const clients = new Set()
 
-app.ws('/__files__', ws => {
-    ws.send(JSON.stringify({type: 'initial', data: t}))
-    clients.add(ws)
-    ws.on('close', () => clients.delete(ws))
-})
-
-app.get('/__files__', (req, res) => {
-    res.send(JSON.stringify(t))
+app.get('/__mprt__', (req, res) => {
+    req.setTimeout(0)
+    res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Transfer-Encoding': 'chunked',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+    })
+    res.write("data: " + JSON.stringify({type: 'initial', data: t}) + "\n\n")
+    clients.add(res)
+    res.on('close', () => clients.delete(res))
 })
 
 app.get('/*', (req, res) => {
@@ -30,7 +31,7 @@ app.get('/*', (req, res) => {
 
 function sendAll(t) {
     for (const c of clients)
-        c.send(JSON.stringify({type: 'update', data: t}))
+        c.write("data: " + JSON.stringify({type: 'update', data: t}) + "\n\n")
 }
 
 function reg(path, s) {

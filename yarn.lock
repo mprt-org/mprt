@@ -50,6 +50,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@mprt/agent@workspace:packages/agent":
+  version: 0.0.0-use.local
+  resolution: "@mprt/agent@workspace:packages/agent"
+  languageName: unknown
+  linkType: soft
+
+"@mprt/core@workspace:packages/core":
+  version: 0.0.0-use.local
+  resolution: "@mprt/core@workspace:packages/core"
+  languageName: unknown
+  linkType: soft
+
 "@mprt/example@workspace:packages/example":
   version: 0.0.0-use.local
   resolution: "@mprt/example@workspace:packages/example"
@@ -72,7 +84,6 @@ __metadata:
   dependencies:
     chokidar: ^3.4.2
     express: ^4.17.1
-    express-ws: ^4.0.0
   bin:
     mprt: serve.js
   languageName: unknown
@@ -439,13 +450,6 @@ __metadata:
   version: 1.0.0
   resolution: "assert-plus@npm:1.0.0"
   checksum: 1bda24f67343ccb75a7eee31179c92cf9f79bd6f6bc24101b0ce1495ef979376dd9b0f9b9064812bba564cdade5fbf851ed76b4a44b5e141d49cdaee6ffed6b2
-  languageName: node
-  linkType: hard
-
-"async-limiter@npm:~1.0.0":
-  version: 1.0.1
-  resolution: "async-limiter@npm:1.0.1"
-  checksum: d123312ace75c07399ddc58e06cc028dacce35f71cdf59cf9b22f6c31dde221c22285e6185ede823ecb67f3b3065e26205eb9f74fcbba3f12ce7a2c2b09d7763
   languageName: node
   linkType: hard
 
@@ -1094,17 +1098,6 @@ __metadata:
     signal-exit: ^3.0.2
     strip-final-newline: ^2.0.0
   checksum: 65b237d178b468045ee57af6aa4e4124807b28aec9573d9b3b16b02a7e41bd65996236e0c5575d053d3888585ffc795cbed38847c6c9669e9c8481fc44ac05e4
-  languageName: node
-  linkType: hard
-
-"express-ws@npm:^4.0.0":
-  version: 4.0.0
-  resolution: "express-ws@npm:4.0.0"
-  dependencies:
-    ws: ^5.2.0
-  peerDependencies:
-    express: ^4.0.0 || ^5.0.0-alpha.1
-  checksum: 68dd01ebd9d56c93d202c9e40f0162187352e3e520451910aee6274362612d4182bade1e18d2870b169002c5fab6dee3a1dd08c49c1cf95bbe50f50416318d85
   languageName: node
   linkType: hard
 
@@ -3215,15 +3208,6 @@ typescript@^4.0.2:
   version: 1.0.2
   resolution: "wrappy@npm:1.0.2"
   checksum: 519fcda0fcdf0c16327be2de9d98646742307bc830277e8868529fcf7566f2b330a6453c233e0cdcb767d5838dd61a90984a02ecc983bcddebea5ad0833bbf98
-  languageName: node
-  linkType: hard
-
-"ws@npm:^5.2.0":
-  version: 5.2.2
-  resolution: "ws@npm:5.2.2"
-  dependencies:
-    async-limiter: ~1.0.0
-  checksum: c8217b54821ac9109bd395029487fd2a577867d6227624079dfa04c927728be13fdbe43070b2d349e9360d7dd17416c33362ba1062bff3bd9ddab6e9a9272915
   languageName: node
   linkType: hard
 
