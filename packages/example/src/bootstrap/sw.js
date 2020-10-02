@@ -15,10 +15,10 @@ function resolveType(filePath) {
     else if (filePath.match(/\.[jt]sx?$/)) {
         return 'js'
     }
-    else if (filePath.match(/\.module.css$/)) {
+    else if (filePath.endsWith('.module.css')) {
         return 'module.css'
     }
-    else if (filePath.match(/\.css$/)) {
+    else if (filePath.endsWith('.css')) {
         return 'css'
     }
     else if (filePath.endsWith('.json')) {
