@@ -46,13 +46,13 @@ function isStaled(resp, lastUpd) {
 }
 
 let files = {}
-let conn = null
+let _c = null
 let clients = {}
 
 async function ensureConnection() {
-    if (!conn) {
-        conn = new EventSource('/__mprt__')
-        await new Promise(ok => conn.addEventListener('message', e => {
+    if (!_c) {
+        let c = new EventSource('/__mprt__')
+        _c = new Promise(ok => c.addEventListener('message', e => {
             const d = JSON.parse(e.data)
             if (d.type === 'initial') {
                 files = d.data
@@ -68,16 +68,17 @@ async function ensureConnection() {
             }
         }))
     }
+    return _c
 }
 
-async function addClient(clientId, onMessage, onClose) {
+async function addClient(conn, clientId, onMessage, onClose) {
     if (!conn)
         throw new Error('Has no connection!')
     clients[clientId] = [onMessage, onClose]
     conn.addEventListener('message', onMessage)
 }
 
-function removeClient(clientId) {
+function removeClient(conn, clientId) {
     if (!conn) {
         clients = {}
         files = {}
@@ -119,10 +120,10 @@ function onServerMessage(controller, {data, type, retry, lastEventId}={}) {
 }
 
 async function interceptMprt(event) {
-    await ensureConnection()
+    const conn = await ensureConnection()
     const stream = new ReadableStream({
-        start: controller => addClient(event.clientId, onServerMessage.bind(null, controller), () => controller.close()),
-        cancel: () => removeClient(event.clientId), //TODO: http://crbug.com/638494
+        start: controller => addClient(conn, event.clientId, onServerMessage.bind(null, controller), () => controller.close()),
+        cancel: () => removeClient(conn, event.clientId), //TODO: http://crbug.com/638494
     })
     return new Response(stream, {headers: sseHeaders});
 }
