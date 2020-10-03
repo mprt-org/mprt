@@ -1,10 +1,7 @@
-#!/usr/bin/env node
-
 const ch = require('chokidar')
 const express = require('express')
 
 const app = express()
-const port = 8000
 
 app.use('/', express.static('.', {etag: false}))
 
@@ -48,4 +45,6 @@ ch.watch('.', {recursive: true}).on('add', reg).on('change', reg).on('unlink', p
     sendAll({[path]: null})
 })
 
-app.listen(port)
+module.exports.serve = function serve(port) {
+    app.listen(port)
+}
