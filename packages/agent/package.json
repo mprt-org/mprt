@@ -3,7 +3,5 @@
   "version": "0.0.4",
   "module": "index.js",
   "author": "Amareis",
-  "license": "MIT",
-  "dependencies": {
-  }
+  "license": "MIT"
 }
