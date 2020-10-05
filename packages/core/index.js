@@ -47,16 +47,21 @@ function isStaled(resp, lastUpd) {
 
 let files = {}
 let _c = null
-let clients = {}
+let agents = {}
+let closeTimeout = null
+let conn = null
 
 async function ensureConnection() {
+    if (closeTimeout)
+        clearTimeout(closeTimeout)
     if (!_c) {
         let c = new EventSource('/__mprt__')
         _c = new Promise(ok => c.addEventListener('message', e => {
             const d = JSON.parse(e.data)
             if (d.type === 'initial') {
                 files = d.data
-                ok()
+                conn = c
+                ok(c)
             }
             else if (d.type === 'update') {
                 for (const [file, updTime] of Object.entries(d.data)) {
@@ -71,30 +76,33 @@ async function ensureConnection() {
     return _c
 }
 
-async function addClient(conn, clientId, onMessage, onClose) {
+async function addClient(clientId, onMessage, onClose) {
     if (!conn)
         throw new Error('Has no connection!')
-    clients[clientId] = [onMessage, onClose]
+    agents[clientId] = [onMessage, onClose]
     conn.addEventListener('message', onMessage)
 }
 
-function removeClient(conn, clientId) {
+function removeClient(clientId) {
     if (!conn) {
-        clients = {}
+        _c = conn = null
+        agents = {}
         files = {}
         return
     }
-    if (!clients[clientId])
+    if (!agents[clientId])
         return
-    const [onMessage, onClose] = clients[clientId]
+    const [onMessage, onClose] = agents[clientId]
     conn.removeEventListener('message', onMessage)
-    delete clients[clientId]
+    delete agents[clientId]
     onClose()
-    if (Object.keys(clients).length > 0)
+    if (Object.keys(agents).length > 0)
         return
-    conn.close()
-    conn = null
-    files = {}
+    closeTimeout = setTimeout(() => {
+        conn.close()
+        _c = conn = null
+        files = {}
+    }, 2000)
 }
 
 // Function formatting data for SSE
@@ -120,10 +128,10 @@ function onServerMessage(controller, {data, type, retry, lastEventId}={}) {
 }
 
 async function interceptMprt(event) {
-    const conn = await ensureConnection()
+    await ensureConnection()
     const stream = new ReadableStream({
-        start: controller => addClient(conn, event.clientId, onServerMessage.bind(null, controller), () => controller.close()),
-        cancel: () => removeClient(conn, event.clientId), //TODO: http://crbug.com/638494
+        start: controller => addClient(event.clientId, onServerMessage.bind(null, controller), () => controller.close()),
+        cancel: () => removeClient(event.clientId), //TODO: http://crbug.com/638494
     })
     return new Response(stream, {headers: sseHeaders});
 }
