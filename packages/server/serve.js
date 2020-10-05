@@ -23,7 +23,10 @@ app.get('/__mprt__', (req, res) => {
 })
 
 app.get('/*', (req, res) => {
-    res.sendFile(process.cwd() + '/index.html')
+    if (req.header('Sec-Fetch-Dest') === 'document')
+        res.sendFile(process.cwd() + '/index.html')
+    else
+        res.status(404).send('Not found')
 })
 
 function sendAll(t) {
