@@ -3,7 +3,7 @@ export async function start(app, swUrl, scope='/') {
     u.searchParams.set('app', app)
     const reg = await navigator.serviceWorker.register(u.toString(), {scope})
     await reg.update()
-    if (reg.installing || reg.waiting)
+    if (!navigator.serviceWorker.controller || reg.installing || reg.waiting)
         await new Promise(ok => navigator.serviceWorker.addEventListener('controllerchange', ok))
     const es = new EventSource('/__mprt__')
     addEventListener('beforeunload', () => reg.active?.postMessage({type: 'unload'}))
