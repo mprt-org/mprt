@@ -1,4 +1,4 @@
-import {start as agentStart} from 'https://unpkg.com/@mprt/agent@0.0.4/index.js'
+import {start as agentStart} from 'https://unpkg.com/@mprt/agent@0.0.5/index.js'
 
 export async function start(app, swUrl, scope='/') {
     await agentStart(app, swUrl, scope)

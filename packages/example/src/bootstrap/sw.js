@@ -1,4 +1,4 @@
-importScripts('https://unpkg.com/@mprt/core@0.0.4/index.js')
+importScripts('https://unpkg.com/@mprt/core@0.0.5/index.js')
 importScripts('https://unpkg.com/@babel/standalone@7.11.6/babel.min.js')
 
 const exts = ['.js', '.jsx', '.ts', '.tsx']
@@ -115,7 +115,7 @@ self.addEventListener('install', e => {
 })
 
 self.addEventListener('activate', e => {
-    e.waitUntil(clients.claim?.())
+    e.waitUntil(clients.claim())
 })
 
 self.addEventListener('message', e => {
