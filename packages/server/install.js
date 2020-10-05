@@ -1,8 +1,13 @@
 const { parse } = require('node-html-parser')
 const fs = require('fs')
 const path = require('path')
-const babel = require('@babel/core')
 const {install: esinstall} = require('esinstall')
+
+const babel = require('@babel/core')
+const presetTs = require('@babel/preset-typescript')
+const pluginJsx = require('@babel/plugin-syntax-jsx')
+const pluginDecorators = require('@babel/plugin-proposal-decorators')
+const pluginProps = require('@babel/plugin-proposal-class-properties')
 
 const base = process.cwd()
 
@@ -13,7 +18,7 @@ function getPath(s, curr) {
     if (path.isAbsolute(s))
         s = base + s
     else
-        s = path.resolve(s, curr)
+        s = path.resolve(path.dirname(curr), s)
     s = new URL(s, 'http://localhost').pathname
     const vars = [s].concat(fullExts.map(e => s + e))
     for (const v of vars) {
@@ -34,48 +39,47 @@ function matchImportType(imp) {
 }
 
 module.exports.install = async function install() {
-    let toProcess = []
+    let toProcess = new Set()
+
+    const bareImports = new Set()
+    const processed = new Set()
+
     const index = base + '/index.html'
     const html = parse(fs.readFileSync(index, 'utf-8'))
     for (const s of html.querySelectorAll('script')) {
         if (s.getAttribute('type') === 'mprt/module') {
-            toProcess.push(getPath(s.getAttribute('src'), index))
+            toProcess.add(getPath(s.getAttribute('src'), index))
         }
     }
 
-    const bareImports = new Set()
-    const res = {}
-    let nextToProcess = []
-    while (toProcess.length) {
+    while (toProcess.size) {
+        const nextToProcess = new Set()
         for (const filename of toProcess) {
             const t = fs.readFileSync(filename, 'utf-8')
             const result = []
             babel.transform(t, {
                 filename,
-                presets: ['@babel/preset-typescript'],
+                presets: [presetTs],
                 plugins: [
                     [extractImports, {result}],
-                    '@babel/plugin-syntax-jsx',
-                    ['@babel/plugin-proposal-decorators', { legacy: true }],
-                    ['@babel/plugin-proposal-class-properties', { loose: true }],
+                    pluginJsx,
+                    [pluginDecorators, { legacy: true }],
+                    [pluginProps, { loose: true }],
                 ],
             })
-            const local = []
+            processed.add(filename)
             for (const imp of result) {
                 const t = matchImportType(imp)
                 if (t === 'BARE')
                     bareImports.add(imp)
                 else if (t === 'LOCAL') {
                     const f = getPath(imp, filename)
-                    if (f.match(/[jt]sx?$/))
-                        local.push(f)
+                    if (!processed.has(f) && f.match(/[jt]sx?$/))
+                        nextToProcess.add(f)
                 }
             }
-            res[filename] = local
-            nextToProcess.push(...local.filter((f => !res[f])))
         }
         toProcess = nextToProcess
-        nextToProcess = []
     }
     console.log('Detected bare imports:', bareImports)
     await esinstall([...bareImports])

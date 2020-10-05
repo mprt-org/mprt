@@ -1,6 +1,6 @@
 {
   "name": "@mprt/server",
-  "version": "0.0.5",
+  "version": "0.0.7",
   "bin": {
     "mprt": "index.js"
   },
@@ -13,7 +13,7 @@
     "@babel/plugin-syntax-jsx": "^7.10.4",
     "@babel/preset-typescript": "^7.10.4",
     "chokidar": "^3.4.2",
-    "esinstall": "^0.3.0",
+    "esinstall": "^0.3.1",
     "express": "^4.17.1",
     "node-html-parser": "^1.2.21",
     "yargs": "^16.0.3"

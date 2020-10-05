@@ -374,7 +374,7 @@ __metadata:
     "@babel/plugin-syntax-jsx": ^7.10.4
     "@babel/preset-typescript": ^7.10.4
     chokidar: ^3.4.2
-    esinstall: ^0.3.0
+    esinstall: ^0.3.1
     express: ^4.17.1
     node-html-parser: ^1.2.21
     yargs: ^16.0.3
@@ -1429,9 +1429,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"esinstall@npm:^0.3.0":
-  version: 0.3.0
-  resolution: "esinstall@npm:0.3.0"
+"esinstall@npm:^0.3.1":
+  version: 0.3.1
+  resolution: "esinstall@npm:0.3.1"
   dependencies:
     "@rollup/plugin-alias": ^3.0.1
     "@rollup/plugin-commonjs": ^15.0.0
@@ -1448,7 +1448,7 @@ __metadata:
     rollup: ^2.23.0
     rollup-plugin-node-polyfills: ^0.2.1
     validate-npm-package-name: ^3.0.0
-  checksum: 43b1b4c7298e9b44b95ec71c1b4e3a01f5b1e3d3b2d119bba3a29bdf7c1097362391a8dc16a70ec65de00313cd2fa829564dd4622e3b94dac366af3363cac825
+  checksum: decc4276480a4fa0087fda6a977f4769a0071391f18679747ab02ece3d12593c06c7e83eb45d6056d2d74e033780b4ecfee327dad25384b700a9914b6872f41d
   languageName: node
   linkType: hard
 
