@@ -104,18 +104,18 @@ function rewriteImports({types: t}, opts) {
 Babel.registerPlugin('rewriteImports', rewriteImports)
 
 self.addEventListener('install', e => {
+    e.waitUntil(self.skipWaiting())
+})
+
+self.addEventListener('activate', e => {
     e.waitUntil(async function () {
         const promises = []
         const c = await caches.open(getAppName())
         for (const k of await c.keys())
             promises.push(c.delete(k))
         await Promise.all(promises)
-        await self.skipWaiting()
+        await clients.claim()
     }())
-})
-
-self.addEventListener('activate', e => {
-    e.waitUntil(clients.claim())
 })
 
 self.addEventListener('message', e => {
