@@ -48,12 +48,9 @@ function isStaled(resp, lastUpd) {
 let files = {}
 let _c = null
 let agents = {}
-let closeTimeout = null
 let conn = null
 
 async function ensureConnection() {
-    if (closeTimeout)
-        clearTimeout(closeTimeout)
     if (!_c) {
         let c = new EventSource('/__mprt__')
         _c = new Promise(ok => c.addEventListener('message', e => {
@@ -98,11 +95,9 @@ function removeClient(clientId) {
     onClose()
     if (Object.keys(agents).length > 0)
         return
-    closeTimeout = setTimeout(() => {
-        conn.close()
-        _c = conn = null
-        files = {}
-    }, 2000)
+    conn.close()
+    _c = conn = null
+    files = {}
 }
 
 // Function formatting data for SSE
