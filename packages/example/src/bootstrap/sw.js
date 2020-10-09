@@ -1,5 +1,11 @@
-importScripts('https://unpkg.com/@mprt/core@0.0.5/index.js')
+importScripts('https://unpkg.com/@mprt/core@0.0.6/index.js')
 importScripts('https://unpkg.com/@babel/standalone@7.11.6/babel.min.js')
+
+process = {env: {NODE_ENV: 'development'}}
+
+importScripts('https://unpkg.com/@mprt/postcss-standalone@0.0.5/postcss.js')
+importScripts('https://unpkg.com/@mprt/postcss-standalone@0.0.5/plugins/nested.js')
+importScripts('https://unpkg.com/@mprt/postcss-standalone@0.0.5/plugins/modules.js')
 
 const exts = ['.js', '.jsx', '.ts', '.tsx']
 const fullExts = exts.concat(exts.map(e => '/index' + e))
@@ -147,16 +153,52 @@ self.addEventListener('fetch', e => {
                     })
                 },
             },
+            postcss: {
+                async transform(req, res) {
+                    const u = new URL(req.url)
+                    const useModules = u.searchParams.get('modules')
+                    const raw = await res.text()
+                    const plugins = [postcssNested]
+                    if (useModules)
+                        plugins.push(postcssBrowserModules)
+                    const t = (await postcss(plugins).process(raw, {from: u.pathname})).css
+
+                    return new Response(t, {
+                        headers: {'Content-Type': 'text/css; charset=utf-8', 'Last-Modified': res.headers.get('Last-Modified')}
+                    })
+                }
+            },
             'module.css': {
                 async transform(req, res) {
-                    return new Response('export default {}', {
+                    const u = new URL(req.url)
+                    u.searchParams.set('mprt', 'postcss')
+                    u.searchParams.set('modules', '1')
+                    const url = u.pathname + u.search
+
+                    const raw = await res.text()
+                    const cn = {}
+                    await postcss([postcssNested, postcssBrowserModules({json: cn})]).process(raw, {from: u.pathname})
+
+                    return new Response(`
+                    const link = document.createElement('link')
+                    link.rel = 'stylesheet'
+                    link.href = ${JSON.stringify(url)}
+                    document.head.appendChild(link)
+                    export default ${JSON.stringify(cn)}`, {
                         headers: {'Content-Type': 'text/javascript', 'Last-Modified': res.headers.get('Last-Modified')}
                     })
                 }
             },
             css: {
                 async transform(req, res) {
-                    return new Response('/*style*/', {
+                    const u = new URL(req.url)
+                    u.searchParams.set('mprt', 'postcss')
+                    const url = u.pathname + u.search
+                    return new Response(`
+                    const link = document.createElement('link')
+                    link.rel = 'stylesheet'
+                    link.href = ${JSON.stringify(url)}
+                    document.head.appendChild(link)`, {
                         headers: {'Content-Type': 'text/javascript', 'Last-Modified': res.headers.get('Last-Modified')}
                     })
                 }
@@ -171,8 +213,7 @@ self.addEventListener('fetch', e => {
             url: {
                 fetch(req) {
                     const u = new URL(req.url)
-                    u.search = ''
-                    return new Response('export default ' + JSON.stringify(u.toString()), {
+                    return new Response('export default ' + JSON.stringify(u.pathname), {
                         headers: {'Content-Type': 'text/javascript'}
                     })
                 },

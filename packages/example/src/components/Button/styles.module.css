@@ -1,5 +1,3 @@
-@import "src/variables.css";
-
 .hello2 {
     color: var(--button-color);
 }

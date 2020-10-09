@@ -1,9 +1,10 @@
 import React, {createElement} from 'react'
 import { render } from 'react-dom'
 
+import './variables.css'
+
 import Hello from '/components/Hello'
 
-// import './styles.module.css'
 
 class RootScreen extends React.Component {
     render() {

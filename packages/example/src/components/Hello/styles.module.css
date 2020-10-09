@@ -1,5 +1,6 @@
-@import "src/variables.css";
-
 .hello {
-    color: var(--button-color);
+    color: var(--text-color);
+    & span {
+        color: var(--count-color);
+    }
 }
